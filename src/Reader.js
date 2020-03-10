@@ -5,20 +5,56 @@ import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,
   } from 'react-native-responsive-screen';
+import AsyncStorage from '@react-native-community/async-storage'; 
+ import api from './services/api';
 export default class Reader extends Component {
     state = {
-        read: '',
         modeState: false,
         success: false,
         num : 0, 
+        descryption: 'copo do dakkee',
+        type: '550ml',
+        qr:'',
+        user_id:'',
+        token: ''
+    };
+    
+    async componentDidMount(){
+        this.setState ({
+            user_id:  await AsyncStorage.getItem('@QrupCompany:id'),
+            token: await AsyncStorage.getItem('@QrupCompany:token')
+        }) 
     };
     onSuccess = async (e) => {
-        await this.setState({read: e.data, success: true });
-        if(this.state.read === ' '){
-            alert ('Código Invalido')
-        }else{
-            this.props.navigation.navigate('Points', {leitura: this.state.read })
-        }
+        await this.setState({qr: e.data, success: true });
+        if (this.state.qr.length === 0 ){
+            alert('Insira o Código do Copo')
+          } else{ 
+            this.setState({load:true})
+            try{
+              const response = await api.post('/users/'+this.state.user_id+'/reads',{
+                qr: this.state.qr,
+              },
+              {
+                  headers:{
+                      Authorization : "Bearer " + this.state.token
+                  }
+              }) ;
+              this.props.navigation.navigate('Points')
+              alert('Leitura Efetuada')
+            } catch (response){
+              //this.setState({errorMessage: response.data.error });     
+              console.log(response)   
+              this.props.navigation.navigate('Qrup')
+              alert("Copo Não Vinculado a Usuário")
+            }                        
+          } 
+    };
+    async componentDidMount(){
+        this.setState ({
+            user_id:  await AsyncStorage.getItem('@Qrup:u_id'),
+            token: await AsyncStorage.getItem('@Qrup:token')
+        }) 
     };
     onTextInsert = () =>{
         this.props.navigation.navigate ('Points', {leitura: this.state.read})
@@ -42,7 +78,7 @@ export default class Reader extends Component {
                 checkAndroid6Permissions={true}
                 fadeIn = {false}
                  />
-                {this.state.modeState === true ? (
+                {/*{this.state.modeState === true ? (
                     <View>
                         <TextInput
                             placeholder = {'CÓDIGO'}
@@ -65,7 +101,7 @@ export default class Reader extends Component {
                                       onPress = {this.alterMode}  >
                         <Text style = {styles.txtScanMode}>ENTER CODE</Text>
                     </TouchableOpacity>
-                </View>
+                </View>*/}
             </View>            
         );
     }

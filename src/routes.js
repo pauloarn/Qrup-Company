@@ -6,6 +6,7 @@ import Login from './Login';
 import Points from './Points';
 import Reader from './Reader';
 import Register from './Register'
+
 const App = createStackNavigator({
     Login: Login,
     Points: Points,
