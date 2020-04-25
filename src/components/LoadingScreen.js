@@ -13,7 +13,7 @@ export default class WriteCode extends Component {
 				visible={this.props.enabled}
 			>
 				<View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.7)'}}>
-					<ActivityIndicator size= 'large' color = '#006300'/>
+					<ActivityIndicator size= 'large' color = '#01A83E'/>
 				</View>
 			</Modal>
 		)

@@ -4,27 +4,33 @@ import {
   View,
   Text,
   Image,
-  TouchableOpacity,
+  TouchableOpacity
 } from 'react-native';
 import {Button} from 'react-native-elements'
-import Logo from '../Images/qrup_semroda_semsombra.png'
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import Logo from '../Images/qrup_semroda_semsombra.png'
 import AsyncStorage from '@react-native-community/async-storage';
 import { TextField } from 'react-native-material-textfield';
 import api from './services/api';
 import LoadingScreen from './components/LoadingScreen';
+import Icon from 'react-native-vector-icons/Feather'
 
 export default class Login extends React.Component {  
   constructor(props) {
     super(props);    
+    
+    this.renderPasswordAccessory = this.renderPasswordAccessory.bind(this);
+    this.onAccessoryPress = this.onAccessoryPress.bind(this);
+
     this.state = {
         login:'',
         password:'',
         errorMessage: null,
-        load: false
+        load: false,        
+        secureTextEntry: true      
     };
   }
   async componentDidMount(){
@@ -33,25 +39,41 @@ export default class Login extends React.Component {
       this.props.navigation.navigate('User')
     }
   }    
+  renderPasswordAccessory() {
+    let { secureTextEntry } = this.state;
+
+    let name = secureTextEntry?
+      'eye':
+      'eye-off';
+
+    return (
+      <Icon size={24} name={name}  color='white' onPress={this.onAccessoryPress}/>
+    );
+  }
+
+  onAccessoryPress() {
+    this.setState(({ secureTextEntry }) => ({ secureTextEntry: !secureTextEntry }));
+  }
   Loga = async() => {
   if (this.state.login.length === 0 || this.state.password.length === 0 ){
       alert('Campo Vazio')
     } else{ 
       this.setState({load:true})
         try{
-          const response = await api.post('/companysessions',{
+          const response = await api.post('/sessions',{
             cpf: this.state.login,
-            password: this.state.password
+            password: this.state.password,
+            type: 'employee'
           }) ;
             await AsyncStorage.setItem('@QrupCompany:token',response.data.token )
             await AsyncStorage.setItem('@QrupCompany:name',response.data.employee.name)
-            await AsyncStorage.setItem('@QrupCompany:id',response.data.employee.id)            
+            await AsyncStorage.setItem('@QrupCompany:id',response.data.employee.id)       
             this.setState({load:false})
-            this.props.navigation.navigate('Points')
+            this.props.navigation.navigate('User')
         } catch (response){
+          this.setState({load:false})
           //this.setState({errorMessage: response.data.error });      
           console.log(response);  
-          this.setState({load:false})
           alert("Credenciais não conferem")
         }                     
     }   
@@ -70,46 +92,52 @@ export default class Login extends React.Component {
               <Text style = {styles.company}>for Business</Text>
               <View style = {styles.field}>
                 <TextField
-				          	style={styles.input}
-                    label = 'Login'
-                    tintColor = 'rgb(255,255,255)'
-                    baseColor = 'rgba(255,255,255,1)'
-                    textColor = 'rgba(255,255,255,1)'
-                    lineWidth = {2}
-                    fontSize = {17}
-                    onSubmitEditing={() => { this.password.focus(); }}
-                    onChangeText = {login =>{(this.setState({login}))}}
-                  />
+                  style={styles.input}
+                  label = 'CPF do Usuário'
+                  tintColor = 'rgb(255,255,255)'
+                  baseColor = 'rgba(255,255,255,1)'
+                  textColor = 'rgba(255,255,255,1)'
+                  lineWidth = {2}
+                  maxLength= {11}
+                  fontSize = {17}
+                  onSubmitEditing={() => { this.password.focus(); }}
+                  onChangeText = {login =>{(this.setState({login}))}}
+                />
                 <TextField 
                   style={styles.input}    
-                    ref={(input) => { this.password = input; }}
-                    label = 'Senha'
-                    tintColor = 'rgb(255,255,255)'
-                    baseColor = 'rgba(255,255,255,1)'
-                    textColor = 'rgba(255,255,255,1)'
-                    secureTextEntry = {true}
-                    keyboardType = 'twitter'
-                    lineWidth = {2}                    
-                    fontSize = {17}
-                    onSubmitEditing = {() => {this.Loga()}}
-                    onChangeText = {password =>{(this.setState({password}))}}/>
+                  ref={(input) => { this.password = input; }}
+                  label = 'Senha'
+                  tintColor = 'rgb(255,255,255)'
+                  baseColor = 'rgba(255,255,255,1)'
+                  textColor = 'rgba(255,255,255,1)'
+                  secureTextEntry= {this.state.secureTextEntry}
+                  keyboardType = 'twitter'
+                  lineWidth = {2}                    
+                  fontSize = {17}
+                  onSubmitEditing = {() => {this.Loga()}}
+                  onChangeText = {password =>{(this.setState({password}))}}
+                  renderRightAccessory = {this.renderPasswordAccessory}                
+                />
               </View>
-                <Button
+              <Button
                     type = 'outline'
-                    title = 'Login'
+                    title = 'Acessar'
                     titleStyle = {styles.btnLabel}
                     buttonStyle = {styles.btnLogin}
                     onPress = {()=>this.Loga()}
                 /> 
-                {/*<View style={styles.footer}>
-                  <TouchableOpacity 
-                      onPress = {()=>this.Cadastra()}>
-                    <Text style={styles.txtStyle}>Cadastre-se</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity>
+                <View style={styles.footer}>
+                  <View style ={{flexDirection: 'row'}}>
+                    <Text style ={{color: 'white',fontSize: wp('4,85409%'),	textAlign: "center",marginBottom: 20}}>Novo por aqui? </Text>
+                    <TouchableOpacity 
+                        onPress = {()=>this.Cadastra()}>
+                      <Text style={styles.txtStyle}>pressione aqui</Text>
+                    </TouchableOpacity>
+                  </View>
+                  {/*<TouchableOpacity>
                     <Text style = {styles.txtStyle}>Recupere Sua Senha</Text>
-                  </TouchableOpacity>
-                  </View>*/}
+                  </TouchableOpacity>*/}
+                </View>
           </View>
     </>
   );
@@ -119,23 +147,25 @@ export default class Login extends React.Component {
 
 const styles = StyleSheet.create({
 	main: {
-		backgroundColor: '#006300',
+		backgroundColor: '#01A83E',
 		flex: 1,
   	},
 	text:{
-		fontSize: 25,
+		fontSize: wp('5%'),
 		fontFamily: 'Roboto', 
 		color: 'white',
-		alignSelf: 'center'
+    alignSelf: 'center',
+    marginTop:-wp('5%'),
  	},
 	txtStyle:{
 		color: 'white',
 		fontSize: wp('4,85409%'),
 		textAlign: "center",
-		marginBottom: 20
+    marginBottom: 20,
+    textDecorationLine: 'underline',
 	},  
 	Logo:{
-		marginTop: wp('10%'),
+		marginTop: 20,
 		width: wp('20%'),
 		height:hp('20%'),
 		resizeMode: 'contain',
@@ -172,7 +202,7 @@ const styles = StyleSheet.create({
   }, 
   company:{
     color: 'white',
-    //marginStart: wp('20%'),
+    marginStart: wp('15%'),
     alignSelf:'center',
     marginTop: -wp('2%'),
     fontSize: wp('4%')

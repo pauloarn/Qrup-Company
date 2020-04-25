@@ -3,307 +3,258 @@ import {
   StyleSheet,
   View,
   Text,
-  StatusBar,
   Image,
-  TextInput,
   TouchableOpacity,
-  ScrollView
+  ScrollView,
+  ToastAndroid,
+  TextComponent,
+  Alert
 } from 'react-native';
 import Logo from '../Images/qrup_semroda_semsombra.png'
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import moment from 'moment';
 import Icon from 'react-native-vector-icons/Ionicons'
+import Icon2 from 'react-native-vector-icons/Feather'
 import {Button} from 'react-native-elements'
 import { TextField } from 'react-native-material-textfield';
-//import api from './services/api'
+import api from './services/api'
+import LoadingScreen from './components/LoadingScreen';
+
 export default class Register extends React.Component {
   constructor(props) {
     super(props);
+    this.renderPasswordAccessory = this.renderPasswordAccessory.bind(this);
+    this.onAccessoryPress = this.onAccessoryPress.bind(this);
     this.state = {
-        isVisible: false,
-        user:'Bolo',
-        email: 'Bolo@decalça.com',
-        cpf:'00000000000',
-        birhtDate: '18/05/1995',
-        password: 'Datebayo',
-        contact: '651951'
+        isVisible: true,
+        companyName:'',
+        cnpj:'',
+        contact: '',
+        address:'',
+        ownerName:'',
+        ownerCpf:'',
+        password: '',
+        representative:'',
+        load:false,
+        secureTextEntry:true
     };
   }  
-  Login = () => {
-    this.props.navigation.navigate('Login')
-  }
   Cadastra = async () => {
-    if (this.state.user.length === 0 || this.state.password.length === 0 || this.state.email.length === 0 || this.state.cpf.length === 0 || this.state.contact.length === 0 ){
-      alert('Campo Vazio')
+    if (this.state.companyName.length === 0 || this.state.cnpj.length === 0 || this.state.address.length === 0 || this.state.contact.length === 0 || this.state.ownerName.length === 0 || this.state.ownerCpf.length === 0 || this.state.password.length === 0 || this.state.representative.length === 0){
+      ToastAndroid.showWithGravityAndOffset(
+        'Para efetuar o cadastro, todos os campos devem ser preenchidos',
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM,
+        0,
+        200,
+      );
     } else{       
-      alert("Cadastro efetuado com sucesso"),
-      this.props.navigation.navigate('Login');
-    /*console.log('SICARALHO')   
       try{
-        const response = await api.post('/users',{
-          email: this.state.email,
+        const response = await api.post('/companies',{
+          nameCompany: this.state.companyName,
+          cnpj: this.state.cnpj,
+          address: this.state.address,
+          contact: this.state.contact,
+          nameOwner: this.state.ownerName,
+          cpf: this.state.ownerCpf,
           password: this.state.password,
-          name: this.state.user,
-          cnpj: this.state.cpf,
-          birth: this.state.birhtDate,
-          contact: this.state.contact
+          representative: this.state.representative
         }) ;
-          alert('Cadastro Efetuado com Sucesso')
+          Alert.alert('Parabéns, seu cadastro foi efetuado com sucesso', 
+          'Para efetuar login, utilize o CPF do Responsavel juntamente com a senha da conta principal'
+          )
+          console.log(response)
           this.props.navigation.navigate('Login')
       } catch (response){
         //this.setState({errorMessage: response.data.error });
         console.log(response)
         alert("Cadastro não efetuado com sucesso, virifique seus dados")
-      }  */                      
+      }                     
     }   
   } 
-  
-  handlePicker =(date)=>{
-    this.setState({
-        isVisible: false,
-        birhtDate: moment(date).format('DD/MM/YYYY')
-    })
+  renderPasswordAccessory() {
+    let { secureTextEntry } = this.state;
+
+    let name = secureTextEntry?
+      'eye':
+      'eye-off';
+
+    return (
+      <Icon2 size={24} name={name}  color='#01A83E' onPress={this.onAccessoryPress}/>
+    );
   }
-  hidePicker =()=>{
-    this.setState({
-        isVisible: false       
-    })
+  _addMaskContactBr(contact){  
+    try {
+      contact =  contact.replace(/[^\d]+/g,'');
+      this.setState({ contact: contact });
+      if(contact.length == 10){
+        contact = (contact.length > 1 ? "(" : "")+contact.substring(0, 2) + (contact.length > 2 ? ")" : "")+(contact.length > 2 ? " " : "") + contact.substring(2,6) + (contact.length > 3 ? "-" : "") + contact.substring(6, 10);
+      } else {
+        contact = (contact.length > 1 ? "(" : "")+contact.substring(0, 2) + (contact.length > 2 ? ")" : "")+(contact.length > 2 ? " " : "") + contact.substring(3,2) + (contact.length > 3 ? " " : "") + contact.substring(3, 7) + (contact.length > 7 ? "-" : "") + contact.substring(7, 12);
+      }
+    } catch(e){
+      this.setState({ contact: contact });
+    }
+    return contact;
   }
-  showPicker =()=>{
-    this.setState({
-        isVisible: true
-    })
+
+  onAccessoryPress() {
+    this.setState(({ secureTextEntry }) => ({ secureTextEntry: !secureTextEntry }));
   }
   render() {
   return (
-      <ScrollView style = {{ backgroundColor: "#006300"}}>
-        <View style = {styles.main}>
-            <TouchableOpacity style = {{marginLeft: wp('5%'), marginTop: wp('5%')}} onPress={()=>this.props.navigation.navigate('Login')}>
-              <Icon name = "md-arrow-round-back" color = "white" size = {wp('10%')}/>
-            </TouchableOpacity>           
-          <Image source = {Logo} style={styles.Logo}/>
-          <Text style={styles.text}> QRUP</Text>          
-          <Text style = {styles.company}>for Business</Text>
-          <View style = {styles.field}>
+    <>    
+      <LoadingScreen enabled = {this.state.load}/>
+      <View style = {{flexGrow:1, backgroundColor: '#01A83E', marginBottom: wp('1%'), alignItems: 'center', justifyContent: 'center', alignSelf: 'center'}}>
+        <Text style={{fontSize: wp('4%'), color:'white', marginHorizontal: wp('9.5%')}}> Faça seu cadastro para se tornar um parceiro da iniciativa Qrup e fazer a diferença</Text>
+      </View>
+      <ScrollView style = {{ backgroundColor: "white"}}>         
+            <View style = {styles.field}>
+              <TextField
+                style={styles.input}
+                label = 'Nome da Empresa'
+                tintColor = 'rgba(1, 168, 62, 1)'
+                baseColor = 'rgba(1, 168, 62, 1)'
+                textColor = 'rgba(1, 168, 62, 1)'
+                lineWidth = {2}
+                fontSize = {17}
+                onSubmitEditing={() => { this.cnpj.focus(); }}
+                onChangeText = {companyName =>{(this.setState({companyName}))}}
+              />
+              <TextField
+                style={styles.input}
+                ref={(input) => { this.cnpj= input; }}
+                label = 'CNPJ da Empresa'
+                tintColor = 'rgba(1, 168, 62, 1)'
+                baseColor = 'rgba(1, 168, 62, 1)'
+                textColor = 'rgba(1, 168, 62, 1)'
+                lineWidth = {2}              
+                keyboardType = 'phone-pad'
+                maxLength = {14}
+                fontSize = {17}
+                autoCapitalize ='none'
+                onSubmitEditing={() => { this.phone.focus(); }}              
+                onChangeText = {cnpj =>{(this.setState({cnpj}))}}
+              />  
+              <TextField
+                style={styles.input}
+                ref={(input) => { this.phone = input; }}
+                label = 'Telefone'
+                keyboardType = 'phone-pad'
+                tintColor = 'rgba(1, 168, 62, 1)'
+                baseColor = 'rgba(1, 168, 62, 1)'
+                textColor = 'rgba(1, 168, 62, 1)'
+                lineWidth = {2}
+                fontSize = {17}
+                onSubmitEditing={() => { this.endereco.focus(); }}          
+                formatText={value => this._addMaskContactBr(value)}
+              />            
+              <TextField
+                style={styles.input}
+                ref={(input) => { this.endereco= input; }}
+                label = 'Endereço da Empresa'
+                tintColor = 'rgba(1, 168, 62, 1)'
+                baseColor = 'rgba(1, 168, 62, 1)'
+                textColor = 'rgba(1, 168, 62, 1)'
+                lineWidth = {2}
+                fontSize = {17}
+                onChangeText = {address =>{this.setState({address})}}
+                onSubmitEditing={() => { this.ownerName.focus(); }}  
+              />        
+              <TextField
+                style={styles.input}
+                ref={(input) => { this.ownerName= input; }}
+                label = 'Nome do Dono'
+                tintColor = 'rgba(1, 168, 62, 1)'
+                baseColor = 'rgba(1, 168, 62, 1)'
+                textColor = 'rgba(1, 168, 62, 1)'
+                lineWidth = {2}
+                fontSize = {17}
+                onChangeText = {ownerName =>{this.setState({ownerName})}}
+                onSubmitEditing={() => { this.cpf.focus(); }}  
+              />      
+              <TextField
+                style={styles.input}
+                ref={(input) => { this.cpf = input; }}
+                label = 'CPF do Responsavel'
+                keyboardType = 'phone-pad'
+                maxLength={11}
+                tintColor = 'rgba(1, 168, 62, 1)'
+                baseColor = 'rgba(1, 168, 62, 1)'
+                textColor = 'rgba(1, 168, 62, 1)'
+                lineWidth = {2}
+                fontSize = {17}
+                onChangeText = {ownerCpf =>{this.setState({ownerCpf})}}
+                onSubmitEditing={() => { this.password.focus(); }}  
+              />  
+              <TextField
+                style={styles.input}
+                ref={(input) => { this.password= input; }}
+                label = 'Senha da Conta Principal'
+                tintColor = 'rgba(1, 168, 62, 1)'
+                baseColor = 'rgba(1, 168, 62, 1)'
+                textColor = 'rgba(1, 168, 62, 1)'
+                secureTextEntry = {this.state.secureTextEntry}
+                lineWidth = {2}
+                autoCapitalize = 'none'
+                fontSize = {17}            
+                onChangeText = {password =>{(this.setState({password}))}}
+                renderRightAccessory = {this.renderPasswordAccessory}
+                onSubmitEditing={() => { this.representative.focus(); }}  
+              />                          
             <TextField
-              style={styles.input}
-              label = 'Responsavel Jurídico'
-              tintColor = 'rgb(255,255,255)'
-              baseColor = 'rgba(255,255,255,1)'
-              textColor = 'rgba(255,255,255,1)'
-              lineWidth = {2}
-              fontSize = {17}
-              onSubmitEditing={() => { this.email.focus(); }}
-              onChangeText = {user =>{(this.setState({user}))}}
-            />
-            <TextField
-              style={styles.input}
-              ref={(input) => { this.email= input; }}
-              label = 'Company E-mail'
-              tintColor = 'rgb(255,255,255)'
-              baseColor = 'rgba(255,255,255,1)'
-              textColor = 'rgba(255,255,255,1)'
-              lineWidth = {2}
-              fontSize = {17}
-              onSubmitEditing={() => { this.password.focus(); }}              
-              onChangeText = {email =>{(this.setState({email}))}}
-            />            
-            <TextField
-              style={styles.input}
-              ref={(input) => { this.password= input; }}
-              label = 'Password'
-              tintColor = 'rgb(255,255,255)'
-              baseColor = 'rgba(255,255,255,1)'
-              textColor = 'rgba(255,255,255,1)'
-              secureTextEntry = {true}
-              lineWidth = {2}
-              fontSize = {17}
-              onSubmitEditing={() => { this.phone.focus(); }}              
-              onChangeText = {password =>{(this.setState({password}))}}
-            />
-            {/*<TextField
-              style={styles.input}
-              ref={(input) => { this.confirm= input; }}
-              label = 'Confirme sua Senha'
-              tintColor = 'rgb(255,255,255)'
-              baseColor = 'rgba(255,255,255,1)'
-              textColor = 'rgba(255,255,255,1)'
-              lineWidth = {2}
-              secureTextEntry = {true}
-              fontSize = {17}
-              onSubmitEditing={() => { this.phone.focus(); }}
-            /> */} 
-            <TextField
-              style={styles.input}
-              ref={(input) => { this.phone = input; }}
-              label = 'Telefone'
-              keyboardType = 'phone-pad'
-              tintColor = 'rgb(255,255,255)'
-              baseColor = 'rgba(255,255,255,1)'
-              textColor = 'rgba(255,255,255,1)'
-              lineWidth = {2}
-              fontSize = {17}
-              onSubmitEditing={() => { this.cpf.focus(); }}                
-              onChangeText = {contact =>{(this.setState({contact}))}}
-            />            
-            <TextField
-              style={styles.input}
-              ref={(input) => { this.cpf = input; }}
-              label = 'CNPJ'
-              keyboardType = 'phone-pad'
-              tintColor = 'rgb(255,255,255)'
-              baseColor = 'rgba(255,255,255,1)'
-              textColor = 'rgba(255,255,255,1)'
-              lineWidth = {2}
-              fontSize = {17}
-              onSubmitEditing={() => {this.showPicker()}}
-              onChangeText = {cnpj =>{(this.setState({cnpj}))}}
-            />             
-           { /*<TextField
-              style={styles.input}
-              ref={(input) => { this.birth = input; }}
-              onFocus = {() => {this.showPicker}}
-              label = 'Nascimento'
-              keyboardType = 'phone-pad'
-              tintColor = 'rgb(255,255,255)'
-              baseColor = 'rgba(255,255,255,1)'
-              textColor = 'rgba(255,255,255,1)'
-              lineWidth = {2}
-              fontSize = {17}
-              onSubmitEditing={() => { this.cpf.focus(); }}
-           /> */}
-            {/*<TouchableOpacity 
-                style ={styles.birthDate2}
-                onPress ={()=>this.showPicker()} >
-                <Text
-                    style ={ styles.birthDate1}>
-                        {this.state.birhtDate}
-                </Text>
-            </TouchableOpacity>
+                style={styles.input}
+                ref={(input) => { this.representative= input; }}
+                label = 'Nome do Representante'
+                tintColor = 'rgba(1, 168, 62, 1)'
+                baseColor = 'rgba(1, 168, 62, 1)'
+                textColor = 'rgba(1, 168, 62, 1)'
+                lineWidth = {2}
+                fontSize = {17}
+                onChangeText = {representative =>{this.setState({representative})}}
+              />  
+            </View>   
+            <View style= {styles.divider}/>
             <Button
               type = 'outline'
-              title = {this.state.birhtDate}
-              titleStyle = {styles.birthDate1}
-              buttonStyle = {styles.birthDate2}
-              onPress = {()=>this.showPicker()}
-            />
-            <DateTimePicker
-                isVisible={this.state.isVisible}
-                onConfirm={this.handlePicker}
-                onCancel={this.hidePicker}
-                mode = {'date'}
-            />   */}
-          </View>
-          <View style= {styles.divider}/>
-          <Button
-            type = 'outline'
-            title = 'Cadastrar'
-            titleStyle = {styles.btnLabel}
-            buttonStyle = {styles.btnLogin}
-            onPress = {()=>this.Cadastra()}
-          /> 
-        </View>
-      </ScrollView>
+              title = 'Cadastrar'
+              titleStyle = {styles.btnLabel}
+              buttonStyle = {styles.btnLogin}
+              onPress = {()=>this.Cadastra()}
+            /> 
+      </ScrollView>  
+  </>
   );
   }
 };
 
 
 const styles = StyleSheet.create({
-  divider:{
-    height: wp('5%')
+    divider:{
+      height: wp('5%')
+    },
+  text:{
+     alignSelf:'center',
+     fontSize: wp('9%'),
+     fontFamily: 'roboto',
+     color: 'white',
+   },
+   field:{
+    color:'white',
+    width: '80%',
+    alignSelf: 'center',
+  }, 
+  
+  btnLogin:{
+    marginTop: wp('2%'),
+    alignSelf: 'center',
+    width: '40%',
+    backgroundColor: '#01A83E',
   },
-  main: {
-    backgroundColor: '#006300',
-    flex:1
-  },
-text:{
-   alignSelf:'center',
-   fontSize: wp('9%'),
-   fontFamily: 'roboto',
-   color: 'white',
- },
- company:{
-  color: 'white',
-  //marginStart: wp('20%'),
-  alignSelf:'center',
-  marginTop: -wp('2%'),
-  fontSize: wp('4%')
-},
- field:{
-  color:'white',
-  width: '80%',
-  alignSelf: 'center',
-}, 
- Logo:{  
-   alignSelf: 'center',
-   width: wp('20%'),
-   height:hp('15%'),
-   resizeMode: 'contain'
- },
- input: {
-  marginTop: 2
-},
- btnImg:{
-    //marginStart: hp('30%'),
-    //marginTop: wp('%'),
-    //marginStart: wp('45%'),
-    width: wp('25%'),
-    height: hp('25%'),
-    resizeMode: 'contain'
- },
- birthDate2:{
-     marginTop: wp('3%'),
-     justifyContent : 'flex-start',
-     borderBottomColor: 'white',
-     borderBottomWidth: 2,
-     borderWidth: 0,
- },
- birthDate1:{
-   color: 'white',
-   alignItems:'flex-start',
-   justifyContent:'flex-start'
- },
- buttonLogin:{
-  //width: wp('10%'),
-  height: hp('15%'),
-  marginLeft: hp('30%'),
-  borderRadius: wp('10%'),
-  //backgroundColor: 'white',
-  alignContent: 'center',
-  alignContent: 'flex-end',
-  textAlignVertical: 'center',
-  resizeMode: 'contain',
-  marginBottom: wp('15%')
-},
-btnImg:{
-  //marginStart: hp('30%'),
-  //marginTop: wp('%'),
-  //marginStart: wp('45%'),
-  width: wp('25%'),
-  height: hp('25%'),
-  resizeMode: 'contain'
-},
-textMin1: {
-//  marginEnd: wp('65%'),
-  //marginTop: hp('15%')
-},
-textMin2:{
- /* , */
-  color: 'white',
-  fontSize: wp('8%'),
-},
-btnLogin:{
-  marginTop: wp('5%'),
-  alignSelf: 'center',
-  width: '80%',
-  backgroundColor: 'white',
-},
-btnLabel:{
-  color:'#006300',
-  fontSize: wp('5%'),
-},
+  btnLabel:{
+    color:'white',
+    fontSize: wp('5%'),
+  }  
 });
