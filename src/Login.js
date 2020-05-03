@@ -34,7 +34,7 @@ export default class Login extends React.Component {
     };
   }
   async componentDidMount(){
-    const user = await AsyncStorage.getItem('@User')
+    const user = await AsyncStorage.getItem('@QrupCompany:token')
     if (user){
       this.props.navigation.navigate('User')
     }
@@ -65,20 +65,51 @@ export default class Login extends React.Component {
             password: this.state.password,
             type: 'employee'
           }) ;
-            await AsyncStorage.setItem('@QrupCompany:token',response.data.token )
-            await AsyncStorage.setItem('@QrupCompany:name',response.data.employee.name)
-            await AsyncStorage.setItem('@QrupCompany:id',response.data.employee.id)       
-            this.setState({load:false})
-            this.props.navigation.navigate('User')
+            await AsyncStorage.setItem('@QrupCompany:companyid',response.data.employee.company[0].company_id)       
+            this.loginAgain()
+            console.log(response.data.employee.company[0].company_id)
         } catch (response){
           this.setState({load:false})
           //this.setState({errorMessage: response.data.error });      
           console.log(response);  
-          alert("Credenciais não conferem")
+          ToastAndroid.showWithGravityAndOffset(
+            'Credenciais não conferem',
+            ToastAndroid.SHORT,
+            ToastAndroid.BOTTOM,
+            0,
+            200,
+          );
         }                     
     }   
   }
 
+  async loginAgain(){
+    try{
+      const response = await api.post('/sessions',{
+        cpf: this.state.login,
+        password: this.state.password,
+        company_id:await AsyncStorage.getItem('@QrupCompany:companyid'),
+        type: 'employee'
+      }) ;
+        await AsyncStorage.setItem('@QrupCompany:token',response.data.token)    
+        await AsyncStorage.setItem('@QrupCompany:companyid',response.data.employee.company[0].company_id)        
+        await AsyncStorage.setItem('@QrupCompany:name',response.data.employee.name)     
+        await AsyncStorage.setItem('@QrupCompany:role',JSON.stringify(response.data.employee.role))
+        await AsyncStorage.setItem('@QrupCompany:companyName',response.data.employee.company[0].company[0].name)          
+        await AsyncStorage.setItem('@QrupCompany:companyAddress',response.data.employee.company[0].company[0].address)
+        await AsyncStorage.setItem('@QrupCompany:companyAvatar',response.data.employee.company[0].company[0].avatar_id)      
+        await AsyncStorage.setItem('@QrupCompany:companyCNPJ',response.data.employee.company[0].company[0].avatar_id)      
+        await AsyncStorage.setItem('@QrupCompany:companyContact',response.data.employee.company[0].company[0].contact)  
+        console.log(response.data.employee.company[0].company_id)        
+        this.setState({load:false})
+        this.props.navigation.navigate('User')
+    } catch (response){
+      this.setState({load:false})
+      //this.setState({errorMessage: response.data.error });      
+      console.log(response);  
+      alert("Credenciais não conferem")
+    }                  
+  }
   Cadastra = () =>{
     this.props.navigation.navigate('Register')
   }

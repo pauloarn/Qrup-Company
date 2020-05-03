@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 import {
     widthPercentageToDP as wp,
@@ -8,23 +9,49 @@ import {
   } from 'react-native-responsive-screen';
   import Icon from 'react-native-vector-icons/FontAwesome5'
   import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons'
+  import {Button} from 'react-native-elements'
 
 export default class Profile extends Component {
+    constructor(props) {
+        super(props);    
+        this.state = {
+            name:'',
+            role:'',
+            funcao:''     
+        };
+    }
+    async componentDidMount(){
+        this.setState({
+            name: await AsyncStorage.getItem('@QrupCompany:name'),
+            role: await AsyncStorage.getItem('@QrupCompany:role'),
+        })
+        if (this.state.role == '1'){
+            this.setState({funcao: 'Dono da Empresa'})
+        } else if(this.state.role =='2'){
+            this.setState({funcao:'Gerente da Empresa'})
+        } else if(this.state.role == '3'){
+            this.setState({funcao: 'Funcionário'})
+        }
+    }
+    Exit =async()=>{
+        await AsyncStorage.clear();
+        this.props.navigation.navigate('Login');
+    }
   render() {
     return (
         <>
             <View style ={styles.header}>
                 <View style = {{marginTop: wp('8%'), marginLeft: wp('8%')}}>
-                    <Text style = {{fontSize: wp('6%'), color:'white'}}>Olá, Funcionário</Text>
-                    <Text style = {{fontSize: wp('3.5%'), color:'white'}}>Função do Funcionário</Text>
+                    <Text style = {{fontSize: wp('6%'), color:'white'}}>Olá, {this.state.name.split(' ',1)}</Text>
+                    <Text style = {{fontSize: wp('3.5%'), color:'white'}}>{this.state.funcao}</Text>
                 </View>
-                <TouchableOpacity style = {{marginLeft:wp('35%'), marginTop:wp('3%')}} onPress ={()=> {this.props.navigation.navigate('Employees')}}>
+                <TouchableOpacity style = {{marginRight:wp('8%'), marginTop:wp('3%')}} onPress ={()=> {this.props.navigation.navigate('Employees')}}>
                     <Icon size={wp('7%')} name='users'  color='white'/>
                 </TouchableOpacity>
             </View>
             <View style = {styles.card}>
-                <View style = {{height: wp('20%'), width: wp('20%'), borderRadius:wp('10%'), elevation:wp('5%'), marginTop: -wp('10%'), backgroundColor:'white',  alignSelf:'center', alignItems:'center', justifyContent:'center'}}>
-                    <View style = {{height: wp('18%'), width: wp('18%'), borderRadius:wp('10%'), borderColor: '#01A83E', borderWidth:wp('1%'),  alignSelf:'center', alignItems:'center', justifyContent:'center'}}>
+                <View style = {{height: wp('20%'), width: wp('20%'), borderRadius:wp('10%'), borderWidth:wp('0.8%'),borderColor:'#01A83E', marginTop: -wp('10%'), backgroundColor:'white',  alignSelf:'center', alignItems:'center', justifyContent:'center'}}>
+                    <View style = {{height: wp('17%'), width: wp('17%'), borderRadius:wp('8.5%'), borderColor: '#01A83E', borderWidth:wp('0.5%'),  alignSelf:'center', alignItems:'center', justifyContent:'center'}}>
                         <Icon name = 'user' size = {wp('10%')} color='#01A83E'/>
                     </View>
                 </View>
@@ -68,6 +95,14 @@ export default class Profile extends Component {
                     <Text style={styles.cardNumber}>0</Text>
                     <Text style={styles.cardText}>Copons escaneados hoje</Text>            
                 </View>
+                <View style ={{height:wp('5%')}}/>
+                <Button
+                    type = 'outline'
+                    title = 'Sair'
+                    titleStyle = {styles.btnLabel}
+                    buttonStyle = {styles.btnLogout}
+                    onPress = {()=>this.Exit()}
+                /> 
             </View>
         </>
     );
@@ -79,7 +114,8 @@ const styles = StyleSheet.create({
         height: hp('27.5%'),
         width: wp('100%'),
         backgroundColor:'#01A83E',
-        flexDirection:'row'
+        flexDirection:'row',
+        justifyContent:'space-between'
     },
     card:{
         alignSelf:"center",
@@ -130,5 +166,17 @@ const styles = StyleSheet.create({
         marginTop:wp('5%'),
         alignSelf:'center'
     },
+    btnLogout:{
+        // marginTop: wp('75%'),
+         width: '40%',
+         backgroundColor: 'white',
+         borderColor: '#01A83E',
+         borderWidth: 2,
+         alignSelf: 'center'
+     },
+     btnLabel:{
+         color:'#01A83E',
+         fontSize: wp('5%'),
+     },
 
 })

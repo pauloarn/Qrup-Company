@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ToastAndroid } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,
   } from 'react-native-responsive-screen';
+import api from './services/api';
+import AsyncStorage from '@react-native-community/async-storage';
 const DATA =[
     {
         id:'1',
@@ -22,22 +24,48 @@ const DATA =[
   ]; 
 
 export default class companyCupons extends Component {
+    constructor(props) {
+        super(props);    
+        this.state = {
+            cuponsList:'',
+            load:false,
+            refreshing:false     
+        };
+    }
+    async componentDidMount(){
+        try{
+            const response = await api.get('/companies/'+await AsyncStorage.getItem('@QrupCompany:companyid')+'/company-coupons') ;
+            this.setState({cuponsList: response.data, refreshing: false})
+            console.log(response.data)
+            
+        } catch (response){
+            this.setState({load:false, refreshing:false})
+            console.log(response)
+            ToastAndroid.showWithGravityAndOffset(
+                'Problema para carregar os cupons',
+                ToastAndroid.SHORT,
+                ToastAndroid.BOTTOM,
+                0,
+                200,
+            );
+        } 
+    }
   render() {
     return (
         <>
             <View style={{width:wp('100%'), height:hp('90%'), backgroundColor:'#f5f5f5'}}>
                 <View style ={{height:wp('2%')}}/>
                 <FlatList
-                data={DATA}
-                //data = {this.state.pointHistory}
+                //data={DATA}
+                data = {this.state.cuponsList}
                 renderItem={({ item }) =>   <View style = {styles.main}> 
                                                 <View style = {styles.terte}>
                                                     <View style = {styles.stats}>
-                                                        <Text style = {{marginTop: -wp('1%'), fontSize: wp('3.5%')}}>{item.cuponName}</Text>
-                                                        <Text style = {{marginTop: -wp('1%'), fontSize: wp('2.5%')}}>{item.code}</Text>
+                                                        <Text style = {{marginTop: -wp('1%'), fontSize: wp('3.5%')}}>{item.name}</Text>
+                                                        <Text style = {{marginTop: -wp('1%'), fontSize: wp('2.5%')}}>{item.description}</Text>
                                                     </View>
                                                     <View style = {{flexDirection: 'row', marginHorizontal:wp('2%'), alignItems:'center', justifyContent:'center'}}>
-                                                        <Text style = {{fontSize: wp('3.5%'), marginRight: wp('4%')}}>{item.cost} pontos</Text>
+                                                        <Text style = {{fontSize: wp('3.5%'), marginRight: wp('4%')}}>{item.points} pontos</Text>
                                                     </View>
                                                     <TouchableOpacity>
                                                         <Icon size={wp('5%')} name= 'trash-alt'  color='red' style ={{marginRight: wp('4%')}}/>

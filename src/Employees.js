@@ -10,6 +10,8 @@ import Icon from 'react-native-vector-icons/FontAwesome5'
 import { TextField } from 'react-native-material-textfield'
 import { Button } from 'react-native-elements'
 import {FloatingAction} from 'react-native-floating-action'
+import api from './services/api';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const DATA =[
     {
@@ -23,8 +25,33 @@ const DATA =[
         role: 'Gerente'
     },
   ]; 
+const role =['Dono', 'Gerente', 'Funcionário']
 
 export default class Emplyees extends Component {
+  constructor(props) {
+    super(props);    
+    this.state = {
+        employeeList:'',
+        load:false,
+        refreshing:false     
+    };
+}
+  async componentDidMount(){
+    try{
+      const response = await api.get('/companies/'+await AsyncStorage.getItem('@QrupCompany:companyid')+'/employees',{
+        headers:{
+          Authorization : "Bearer " + await AsyncStorage.getItem('@QrupCompany:token')
+      }
+      })
+      this.setState({
+        employeeList: (response.data)
+      })
+      //console.log(response.data)
+      console.log(response.data[0].employee[0])
+    }catch(response){
+      console.log(response)
+    }
+  }
   render() {
     return (
         <>
@@ -35,15 +62,15 @@ export default class Emplyees extends Component {
               </View>
               <View style={{height:wp('2%')}}/>
               <FlatList
-                data={DATA}
-                //data = {this.state.pointHistory}
+                //data={DATA}
+                data = {this.state.employeeList}
                 renderItem={({ item }) =>   <TouchableOpacity style = {styles.main}> 
                                                 <View style = {styles.terte}>
                                                     <View style = {styles.stats}>
-                                                        <Text style = {{marginTop: -wp('1%'), fontSize: wp('4%')}}>{item.employee}</Text>
+                                                        <Text style = {{marginTop: -wp('1%'), fontSize: wp('3.5%')}}>{item.employee[0].name}</Text>
                                                     </View>
-                                                    <View style = {{flexDirection: 'row', marginHorizontal:wp('2%'), alignItems:'center', justifyContent:'center'}}>
-                                                      <Text style = {{fontSize: wp('4%'), marginRight: wp('4%')}}>{item.role}</Text>
+                                                    <View style = {{flexDirection: 'row', marginHorizontal:wp('2%'), width:wp('23%'),alignItems:'center', justifyContent:'center'}}>
+                                                      <Text style = {{fontSize: wp('3.5%'), marginRight: wp('4%')}}>{role[item.employee[0].role - 1]}</Text>
                                                     </View>
                                                 </View>
                                             </TouchableOpacity> }
