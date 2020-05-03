@@ -95,10 +95,11 @@ export default class Login extends React.Component {
         await AsyncStorage.setItem('@QrupCompany:companyid',response.data.employee.company[0].company_id)        
         await AsyncStorage.setItem('@QrupCompany:name',response.data.employee.name)     
         await AsyncStorage.setItem('@QrupCompany:role',JSON.stringify(response.data.employee.role))
+        await AsyncStorage.setItem('@QrupCompany:employeeId',JSON.stringify(response.data.employee.id))
         await AsyncStorage.setItem('@QrupCompany:companyName',response.data.employee.company[0].company[0].name)          
         await AsyncStorage.setItem('@QrupCompany:companyAddress',response.data.employee.company[0].company[0].address)
         await AsyncStorage.setItem('@QrupCompany:companyAvatar',response.data.employee.company[0].company[0].avatar_id)      
-        await AsyncStorage.setItem('@QrupCompany:companyCNPJ',response.data.employee.company[0].company[0].avatar_id)      
+        await AsyncStorage.setItem('@QrupCompany:companyCNPJ',response.data.employee.company[0].company[0].cnpj)      
         await AsyncStorage.setItem('@QrupCompany:companyContact',response.data.employee.company[0].company[0].contact)  
         console.log(response.data.employee.company[0].company_id)        
         this.setState({load:false})
@@ -107,7 +108,6 @@ export default class Login extends React.Component {
       this.setState({load:false})
       //this.setState({errorMessage: response.data.error });      
       console.log(response);  
-      alert("Credenciais não conferem")
     }                  
   }
   Cadastra = () =>{

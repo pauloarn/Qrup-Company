@@ -92,7 +92,7 @@ export default class src extends Component {
                     ToastAndroid.BOTTOM,
                     0,
                     200,
-                  );
+                );
             }
         }
     }

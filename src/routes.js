@@ -4,7 +4,8 @@ import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import Login from './Login';
 import Points from './Points';
-import Reader from './Reader';
+import ReaderCup from './ReaderCup';
+import ReaderCoupon from './ReaderCoupon'
 import Register from './Register'
 import Profile from './Profile'
 import Employees from './Employees'
@@ -123,7 +124,7 @@ const User = createStackNavigator(
       }
     },
     ScanCup:{
-      screen: Reader,
+      screen: ReaderCup,
       navigationOptions:{
         headerTintColor: 'white',
         title: 'Escanear Copo',
@@ -142,7 +143,7 @@ const User = createStackNavigator(
       }
     },
     ScanCupon:{
-      screen: Reader,
+      screen: ReaderCoupon,
       navigationOptions:{
         headerTintColor: 'white',
         title: 'Escanear Cupon',

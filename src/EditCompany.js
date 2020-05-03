@@ -9,15 +9,19 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons'
 import { TextField } from 'react-native-material-textfield'
-import { Button } from 'react-native-elements'
+import { Button, Avatar } from 'react-native-elements'
+import AsyncStorage from '@react-native-community/async-storage';
+import api from './services/api';
 
 export default class EditCompany extends Component {
     constructor (props){
         super(props);
         this.state={
-            company:false,
-            enabled: false,
-            contact: false
+            name:'',
+            address:'',
+            contact:'',
+            CNPJ:'',
+            avatar:''
         }
     }
     renderAccessory() {    
@@ -39,12 +43,36 @@ export default class EditCompany extends Component {
     }
     return contact;
     }
+    async componentDidMount(){
+        this.setState({
+            name: await AsyncStorage.getItem('@QrupCompany:companyName'),
+            address:await AsyncStorage.getItem('@QrupCompany:companyAddress'),
+            contact: await AsyncStorage.getItem('@QrupCompany:companyContact'),
+            CNPJ: await AsyncStorage.getItem('@QrupCompany:companyCNPJ'),
+            avatar: await AsyncStorage.getItem('@QrupCompany:companyAvatar')
+        })
+    }
+    async updateData(){
+        try{
+            const response = await api.put
+        }catch(response){
+
+        }
+    }
     
   render() {
     return (
         <>
-            <View style= {{ alignItems:'center'}}>
-                <View style = {{height: wp('20%'), width: wp('20%'), borderRadius:wp('10%'), marginTop: wp('10%'), backgroundColor:'grey'}}/>
+            <View style= {{ alignItems:'center', marginTop:wp('10%')}}>
+                <Avatar
+                    rounded
+                    size= 'xlarge'
+                    source ={{
+                        uri : (api.defaults.baseURL + this.state.avatar)
+                    }}
+                    showEditButton
+                    onPress={()=>this.selectPick()}
+                />
             </View>
             <ScrollView>
                 <View style={{marginHorizontal:wp('8%'), marginTop:wp('5%')}}>
@@ -52,40 +80,32 @@ export default class EditCompany extends Component {
                         style={styles.input}
                         ref={(input) => { this.email= input; }}
                         label = 'Nome da Empresa'
-                        value= 'MIDAS CO'
+                        defaultValue = {this.state.name}
                         tintColor = 'rgba(0, 0, 0, 1)'
                         baseColor = 'rgba(0, 0, 0, 1)'
                         lineWidth = {0}
                         fontSize = {wp('4.5%')}
+                        onChangeText ={name => this.setState({name})}
                         renderRightAccessory = {this.renderAccessory}
+
                     />       
                     <TextField
                         style={styles.input}
-                        ref={(input) => { this.email= input; }}
+                        ref={(input) => { this.address= input; }}
                         label = 'Endereço'
-                        value= 'Travessa Vileta'
+                        defaultValue = {this.state.address}
                         tintColor = 'rgba(0, 0, 0, 1)'
                         baseColor = 'rgba(0, 0, 0, 1)'
                         lineWidth = {0}
                         fontSize = {wp('4.5%')}
                         renderRightAccessory = {this.renderAccessory}
-                    />             
-                    <TextField
-                        style={styles.input}
-                        ref={(input) => { this.email= input; }}
-                        label = 'Endereço'
-                        value= 'Travessa Vileta'
-                        tintColor = 'rgba(0, 0, 0, 1)'
-                        baseColor = 'rgba(0, 0, 0, 1)'
-                        lineWidth = {0}
-                        fontSize = {wp('4.5%')}
-                        renderRightAccessory = {this.renderAccessory}
-                    />  
+                        onChangeText ={address => this.setState({address})}
+                    />        
                     <TextField
                         style={styles.input}
                         ref={(input) => { this.phone = input; }}
                         label = 'Telefone'
-                        value = '91985426776'
+                        defaultValue = {this.state.contact}
                         keyboardType = 'phone-pad'
                         tintColor = 'rgba(0, 0, 0, 1)'
                         baseColor = 'rgba(0, 0, 0, 1)'
@@ -94,19 +114,8 @@ export default class EditCompany extends Component {
                         renderRightAccessory = {this.renderAccessory}
                         onChangeText = {contact =>{(this.setState({contact}))}}         
                         formatText={value => this._addMaskContactBr(value)}
-                    />          
-                    <TextField
-                        style={styles.input}
-                        ref={(input) => { this.email= input; }}
-                        label = 'Representante'
-                        value= 'Paulo'
-                        tintColor = 'rgba(0, 0, 0, 1)'
-                        baseColor = 'rgba(0, 0, 0, 1)'
-                        lineWidth = {0}
-                        fontSize = {wp('4.5%')}
-                        renderRightAccessory = {this.renderAccessory}
-                    />   
-                    <Text style = {{marginTop:wp('5%'), fontSize:wp('4.5%')}}>CNPJ</Text>
+                    />       
+                    <Text style = {{marginTop:wp('5%'), fontSize:wp('4.5%')}}>{this.state.CNPJ}</Text>
                 </View>
                 <Button
                     type = 'outline'
@@ -142,7 +151,7 @@ const styles = StyleSheet.create({
         paddingVertical: 5
     },
     btnLogin:{
-        marginTop: wp('6%'),
+        marginTop: wp('20%'),
         borderRadius: wp('2%'),
         alignSelf: 'center',
         width: '40%',

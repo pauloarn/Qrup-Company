@@ -10,6 +10,7 @@ import {
   import Icon from 'react-native-vector-icons/FontAwesome5'
   import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons'
   import {Button} from 'react-native-elements'
+  import SelectEntry from './components/selectEntry'
 
 export default class Profile extends Component {
     constructor(props) {
@@ -17,7 +18,8 @@ export default class Profile extends Component {
         this.state = {
             name:'',
             role:'',
-            funcao:''     
+            funcao:'',
+            change:true
         };
     }
     async componentDidMount(){
@@ -37,9 +39,17 @@ export default class Profile extends Component {
         await AsyncStorage.clear();
         this.props.navigation.navigate('Login');
     }
+    Camera(){
+        this.props.navigation.navigate('ScanCup')
+        this.setState({change:false})
+    }
   render() {
     return (
         <>
+            {/*<SelectEntry
+                enabled = {this.props.change}
+                onPressCamera = {this.Camera()}
+            />*/}
             <View style ={styles.header}>
                 <View style = {{marginTop: wp('8%'), marginLeft: wp('8%')}}>
                     <Text style = {{fontSize: wp('6%'), color:'white'}}>Olá, {this.state.name.split(' ',1)}</Text>

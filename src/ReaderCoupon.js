@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, TouchableOpacity,Dimensions, TextInput } from 'react-native'
+import { Text, StyleSheet, View, TouchableOpacity,Dimensions, TextInput, ScrollView, ToastAndroid } from 'react-native'
 import QRCodeScanner from 'react-native-qrcode-scanner'
 import {
     widthPercentageToDP as wp,
@@ -10,7 +10,6 @@ import AsyncStorage from '@react-native-community/async-storage';
 export default class Reader extends Component {
     state = {
         modeState: false,
-        success: false,
         num : 0, 
         descryption: 'copo do dakkee',
         type: '550ml',
@@ -26,27 +25,47 @@ export default class Reader extends Component {
         }) 
     };
     onSuccess = async (e) => {
-        await this.setState({qr: e.data, success: true });
+        await this.setState({qr: e.data});
         if (this.state.qr.length === 0 ){
-            alert('Insira o Código do Copo')
+            ToastAndroid.showWithGravityAndOffset(
+                'Ensira o Código do Copo',
+                ToastAndroid.SHORT,
+                ToastAndroid.BOTTOM,
+                0,
+                200,
+              );
           } else{ 
             this.setState({load:true})
             try{
-              const response = await api.post('/users/'+this.state.user_id+'/reads',{
+              const response = await api.post('/employees/'+await AsyncStorage.getItem('@QrupCompany:employeeId')+'/reads',{
                 qr: this.state.qr,
+                type:'read'
               },
               {
                   headers:{
-                      Authorization : "Bearer " + this.state.token
+                      Authorization : "Bearer " + await AsyncStorage.getItem('@QrupCompany:token')
                   }
               }) ;
-              this.props.navigation.navigate('Points')
-              alert('Leitura Efetuada')
+              this.setState({load:false})
+              this.props.navigation.navigate('Profile')
+              ToastAndroid.showWithGravityAndOffset(
+                'Leitura Efetuada',
+                ToastAndroid.SHORT,
+                ToastAndroid.BOTTOM,
+                0,
+                200,
+              );
             } catch (response){
               //this.setState({errorMessage: response.data.error });     
               console.log(response)   
               this.props.navigation.navigate('Qrup')
-              alert("Copo Não Vinculado a Usuário")
+              ToastAndroid.showWithGravityAndOffset(
+                'Copo não Vinculado a Usuário',
+                ToastAndroid.SHORT,
+                ToastAndroid.BOTTOM,
+                0,
+                200,
+              );
             }                        
           } 
     };
@@ -56,8 +75,51 @@ export default class Reader extends Component {
             token: await AsyncStorage.getItem('@Qrup:token')
         }) 
     };
-    onTextInsert = () =>{
-        this.props.navigation.navigate ('Points', {leitura: this.state.read})
+    async onTextInsert  () {
+        if (this.state.read.length === 0 ){
+            ToastAndroid.showWithGravityAndOffset(
+                'Ensira o Código do Copo',
+                ToastAndroid.SHORT,
+                ToastAndroid.BOTTOM,
+                0,
+                200,
+              );
+          } else{ 
+            this.setState({load:true})
+            try{
+              const response = await api.post('/employees/'+await AsyncStorage.getItem('@QrupCompany:employeeId')+'/reads',{
+                qr: this.state.read,
+                type:'read'
+              },
+              {
+                  headers:{
+                      Authorization : "Bearer " + await AsyncStorage.getItem('@QrupCompany:token')
+                  }
+              }) ;
+              
+              this.setState({load:false})
+              this.props.navigation.navigate('Profile')
+              ToastAndroid.showWithGravityAndOffset(
+                'Leitura Efetuada',
+                ToastAndroid.SHORT,
+                ToastAndroid.BOTTOM,
+                0,
+                200,
+              );
+              
+            } catch (response){
+              //this.setState({errorMessage: response.data.error });     
+              console.log(response)   
+              this.props.navigation.navigate('Qrup')
+              ToastAndroid.showWithGravityAndOffset(
+                'Copo não Vinculado a Usuário',
+                ToastAndroid.SHORT,
+                ToastAndroid.BOTTOM,
+                0,
+                200,
+              );
+            }                        
+          } 
     }
     alterMode = () =>{
          if (this.state.modeState === true){
@@ -68,41 +130,42 @@ export default class Reader extends Component {
       };
     render() {
         return (
-            <View>
+            <>
                 <QRCodeScanner
-                onRead={this.onSuccess}   
-                cameraStyle={styles.cameraContainer}
-                showMarker = {this.state.modeState === true ? (false): (true)}
-                reactivate ={true}
-                reactivateTimeout = {1000}
-                checkAndroid6Permissions={true}
-                fadeIn = {false}
-                 />
-                {/*{this.state.modeState === true ? (
-                    <View>
+                    onRead={this.onSuccess}   
+                    cameraStyle={styles.cameraContainer}
+                    showMarker = {this.state.modeState === true ? (false): (true)}
+                    reactivate ={true}
+                    reactivateTimeout = {1000}
+                    checkAndroid6Permissions={true}
+                    fadeIn = {false}
+                />
+                {this.state.modeState === true ? (
+                    <ScrollView>
                         <TextInput
                             placeholder = {'CÓDIGO'}
                             autoCapitalize = 'characters'
-                            placeholderTextColor = '#677D35'
+                            placeholderTextColor = '#01A83E'
                             style = {styles.inputCode}
                             onChangeText = {(read)=>this.setState({read})}
                             onSubmitEditing = {()=>this.onTextInsert()}
                         />
-                    </View>                        
+                    </ScrollView>                        
                 ):(
                     <View></View>
                 )}
                 <View style = {this.state.modeState === true ? (styles.selModeN) : (styles.selMode)}>    
                     <TouchableOpacity style = {this.state.modeState === true ? (styles.scanModeN) : (styles.scanModeSel)}
-                                      onPress = {this.alterMode}>
+                                    onPress = {this.alterMode}>
                         <Text style={styles.txtScanMode}>SCAN CODE</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style = {this.state.modeState === false ? (styles.enterModeN) : (styles.enterModeSel)}
-                                      onPress = {this.alterMode}  >
+                                    onPress = {this.alterMode}  >
                         <Text style = {styles.txtScanMode}>ENTER CODE</Text>
                     </TouchableOpacity>
-                </View>*/}
-            </View>            
+                </View>  
+            </>        
+            
         );
     }
 }
@@ -155,7 +218,7 @@ const styles = StyleSheet.create({
         alignContent: 'center',
         alignItems: 'center',
         borderRadius: wp('3%'),
-        borderColor:'#677D35',
+        borderColor:'#01A83E',
         borderWidth: wp('0.3%'),
         justifyContent: 'center'
         
@@ -176,13 +239,13 @@ const styles = StyleSheet.create({
         alignContent: 'center',
         alignItems: 'center',
         borderRadius: wp('3%'),
-        borderColor:'#677D35',
+        borderColor:'#01A83E',
         borderWidth: wp('0.3%'),
         justifyContent: 'center'
     },  
     txtScanMode:{
        alignItems: 'center',
-       color: '#677D35'
+       color: '#01A83E'
     },
     inputCode:{
         fontSize: wp('5%'),
@@ -190,12 +253,12 @@ const styles = StyleSheet.create({
         marginTop: wp('95%'),
         backgroundColor: '#FFFFFF',
         borderWidth: wp('0.3%'),
-        borderColor: '#677d35',
+        borderColor: '#01A83E',
         width: wp('60%'),
         justifyContent: 'center',
         textAlign: 'center',
         borderRadius: wp('3%'),
-        color: '#677d35'
+        color: '#01A83E'
     },
     terteBtn:{
         //backgroundColor: 'red',

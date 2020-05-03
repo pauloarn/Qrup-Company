@@ -74,7 +74,7 @@ export default class Emplyees extends Component {
                                                     </View>
                                                 </View>
                                             </TouchableOpacity> }
-                keyExtractor={item => item.id}           
+                keyExtractor={item => JSON.stringify(item.id)}           
             />
             <TouchableOpacity style={styles.float} onPress={()=>{this.props.navigation.navigate('AddEmployees')}}>
               <Icon name='user-plus' size = {wp('6%')} color='white'/>
