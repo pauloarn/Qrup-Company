@@ -21,6 +21,7 @@ export default class EditCompany extends Component {
             name:'',
             role:'',
             funcao:'',
+            id:'',
             load: false
         }
     }
@@ -46,9 +47,11 @@ export default class EditCompany extends Component {
     async componentDidMount(){        
         const employeeName = this.props.navigation.getParam('employeeName');
         const employeeRole = this.props.navigation.getParam('employeeRole');
+        const employeeId = this.props.navigation.getParam('employeeId');
         this.setState({
             name: employeeName,
             role: employeeRole,
+            id: employeeId
         })
         console.log(employeeRole)
         if (employeeRole == 1){
@@ -62,10 +65,9 @@ export default class EditCompany extends Component {
     async updateData(){  
         this.setState({load:true})        
         try{
-            const response = await api.put('/companies/'+ await AsyncStorage.getItem('@QrupCompany:companyid'),{    
+            const response = await api.put('/companies/'+ await AsyncStorage.getItem('@QrupCompany:companyid')+'/employees/'+this.state.id,{    
                 name: this.state.name,
-                address: this.state.address,
-                contact: this.state.contact
+                role: this.state.role,
               },
               {
                 headers:{
@@ -73,9 +75,9 @@ export default class EditCompany extends Component {
                 }
               }
             )
-            await AsyncStorage.setItem('@QrupCompany:companyName',response.data.name) 
+            /*await AsyncStorage.setItem('@QrupCompany:companyName',response.data.name) 
             await AsyncStorage.setItem('@QrupCompany:companyAddress',response.data.address)
-            await AsyncStorage.setItem('@QrupCompany:companyContact',response.data.contact) 
+            await AsyncStorage.setItem('@QrupCompany:companyContact',response.data.contact) */
             ToastAndroid.showWithGravityAndOffset(
                 'Dados Atualizados com Sucesso',
                 ToastAndroid.SHORT,
@@ -83,10 +85,11 @@ export default class EditCompany extends Component {
                 0,
                 200,
             );
-            this.props.navigation.navigate('Profile')  
+            this.props.navigation.navigate('Employees')  
             this.setState({load:false})
         }catch(response){              
             this.setState({load:false})
+            console.log(response)
             ToastAndroid.showWithGravityAndOffset(
                 'Problemas para Atualizar dados da empresa',
                 ToastAndroid.SHORT,

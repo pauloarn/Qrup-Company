@@ -13,6 +13,7 @@ import AddEmployees from './AddEmployees'
 import EditCompany from './EditCompany';
 import CompanyCupons from './CompanyCupons'
 import AddCupons from './AddCupons'
+import EditPassword from './EditPassword'
 import EditEmployees from './EditEmployees'
 import Icon2 from 'react-native-vector-icons/FontAwesome5'
 import {
@@ -91,6 +92,25 @@ const User = createStackNavigator(
       navigationOptions:{
         headerTintColor: 'white',
         title: 'Editar Funcionário',
+        headerStyle:{
+          backgroundColor: '#01A83E',
+          elevation: 0,
+        },
+        headerBackImage:(<Icon2 name='angle-left' size={ wp('10%')} color='white'/>),
+        headerTitleContainerStyle:{
+          justifyContent:'center'
+        },
+        headerTitleStyle: {
+          fontSize: wp('5%'),
+          marginLeft: -wp('5%')
+        },
+      }
+    },
+    EditPassword:{
+      screen: EditPassword,
+      navigationOptions:{
+        headerTintColor: 'white',
+        title: 'Editar Senha',
         headerStyle:{
           backgroundColor: '#01A83E',
           elevation: 0,

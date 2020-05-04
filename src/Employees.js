@@ -67,6 +67,7 @@ export default class Emplyees extends Component {
                 renderItem={({ item }) =>   <TouchableOpacity style = {styles.main} onPress={()=>{this.props.navigation.navigate('EditEmployees',{
                                                                                                                                                   employeeName: item.employee[0].name,
                                                                                                                                                   employeeRole: item.employee[0].role,
+                                                                                                                                                  employeeId: item.employee[0].id
                                                                                                                                                 })}}>  
                                                 <View style = {styles.terte}>
                                                     <View style = {styles.stats}>
