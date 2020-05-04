@@ -123,7 +123,8 @@ export default class src extends Component {
                         mode='dropdown'
                         onValueChange={(itemValor, itemIndex)=> this.setState({role:itemValor})}
                     >
-                        <Picker.item label = 'Cargo ' value= ''/>
+                        <Picker.item label = 'Cargo' value= ''/>
+                        <Picker.item label = 'Dono' value= '1'/>
                         <Picker.item label = 'Gerente' value= '2'/>
                         <Picker.item label = 'Funcionário' value= '3'/>
                     </Picker>

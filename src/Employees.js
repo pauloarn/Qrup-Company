@@ -46,7 +46,7 @@ export default class Emplyees extends Component {
       this.setState({
         employeeList: (response.data)
       })
-      //console.log(response.data)
+      console.log(response.data)
       console.log(response.data[0].employee[0])
     }catch(response){
       console.log(response)
@@ -64,7 +64,10 @@ export default class Emplyees extends Component {
               <FlatList
                 //data={DATA}
                 data = {this.state.employeeList}
-                renderItem={({ item }) =>   <TouchableOpacity style = {styles.main}> 
+                renderItem={({ item }) =>   <TouchableOpacity style = {styles.main} onPress={()=>{this.props.navigation.navigate('EditEmployees',{
+                                                                                                                                                  employeeName: item.employee[0].name,
+                                                                                                                                                  employeeRole: item.employee[0].role,
+                                                                                                                                                })}}>  
                                                 <View style = {styles.terte}>
                                                     <View style = {styles.stats}>
                                                         <Text style = {{marginTop: -wp('1%'), fontSize: wp('3.5%')}}>{item.employee[0].name}</Text>
@@ -75,7 +78,7 @@ export default class Emplyees extends Component {
                                                 </View>
                                             </TouchableOpacity> }
                 keyExtractor={item => JSON.stringify(item.id)}           
-            />
+              />
             <TouchableOpacity style={styles.float} onPress={()=>{this.props.navigation.navigate('AddEmployees')}}>
               <Icon name='user-plus' size = {wp('6%')} color='white'/>
             </TouchableOpacity>

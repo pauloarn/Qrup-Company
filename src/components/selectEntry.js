@@ -20,11 +20,11 @@ export default class SelectEntry extends Component {
 			>
 				<View style={{flex: 5, justifyContent: 'center', alignSelf:'flex-end' , backgroundColor: 'rgba(0,0,0,0.7)'}}>
 					<View style = {{backgroundColor:'white', alignItems:'center',height:wp('20%'), width:wp('100%'), marginTop:hp('87%'), flexDirection:'row', justifyContent:'space-around'}}>
-                        <TouchableOpacity style = {{alignItems:'center'}} onPress={()=>this.props.onPressCamera}>
+                        <TouchableOpacity style = {{alignItems:'center'}} onPress={this.props.onPressCamera}>
                             <Icon size={wp('7%')} name='camera'  color='#01A83E'/>
                             <Text>Escanear Código</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style = {{alignItems:'center'}} onPress={()=>this.props.onPressPen}>
+                        <TouchableOpacity style = {{alignItems:'center'}} onPress={this.props.onPressPen}>
                             <Icon size={wp('7%')} name='pen'  color='#01A83E'/>
                             <Text>Escrever Código</Text>
                         </TouchableOpacity>

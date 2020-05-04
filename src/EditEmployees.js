@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView, TextInput, ToastAndroid } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, TextInput, ToastAndroid, Picker } from 'react-native';
 
 import {
     widthPercentageToDP as wp,
@@ -19,10 +19,8 @@ export default class EditCompany extends Component {
         super(props);
         this.state={
             name:'',
-            address:'',
-            contact:'',
-            CNPJ:'',
-            avatar:'',
+            role:'',
+            funcao:'',
             load: false
         }
     }
@@ -45,14 +43,21 @@ export default class EditCompany extends Component {
     }
     return contact;
     }
-    async componentDidMount(){
+    async componentDidMount(){        
+        const employeeName = this.props.navigation.getParam('employeeName');
+        const employeeRole = this.props.navigation.getParam('employeeRole');
         this.setState({
-            name: await AsyncStorage.getItem('@QrupCompany:companyName'),
-            address:await AsyncStorage.getItem('@QrupCompany:companyAddress'),
-            contact: await AsyncStorage.getItem('@QrupCompany:companyContact'),
-            CNPJ: await AsyncStorage.getItem('@QrupCompany:companyCNPJ'),
-            avatar: await AsyncStorage.getItem('@QrupCompany:companyAvatar')
+            name: employeeName,
+            role: employeeRole,
         })
+        console.log(employeeRole)
+        if (employeeRole == 1){
+            this.setState({funcao: 'Dono da Empresa'})
+        } else if(employeeRole ==2){
+            this.setState({funcao:'Gerente da Empresa'})
+        } else if(employeeRole == 3){
+            this.setState({funcao: 'Funcionário'})
+        }
     }
     async updateData(){  
         this.setState({load:true})        
@@ -97,22 +102,13 @@ export default class EditCompany extends Component {
         <>
             <LoadingScreen enabled = {this.state.load}/>
             <View style= {{ alignItems:'center', marginTop:wp('10%')}}>
-                <Avatar
-                    rounded
-                    size= 'xlarge'
-                    source ={{
-                        uri : (api.defaults.baseURL + this.state.avatar)
-                    }}
-                    showEditButton
-                    onPress={()=>this.selectPick()}
-                />
             </View>
             <ScrollView>
-                <View style={{marginHorizontal:wp('8%'), marginTop:wp('5%')}}>
+                <View style={{marginHorizontal:wp('8%'), marginTop:wp('20%')}}>
                     <TextField
                         style={styles.input}
                         ref={(input) => { this.email= input; }}
-                        label = 'Nome da Empresa'
+                        label = 'Nome do Funcionário'
                         defaultValue = {this.state.name}
                         tintColor = 'rgba(0, 0, 0, 1)'
                         baseColor = 'rgba(0, 0, 0, 1)'
@@ -122,34 +118,23 @@ export default class EditCompany extends Component {
                         renderRightAccessory = {this.renderAccessory}
 
                     />       
-                    <TextField
-                        style={styles.input}
-                        ref={(input) => { this.address= input; }}
-                        label = 'Endereço'
-                        defaultValue = {this.state.address}
-                        tintColor = 'rgba(0, 0, 0, 1)'
-                        baseColor = 'rgba(0, 0, 0, 1)'
-                        lineWidth = {0}
-                        fontSize = {wp('4.5%')}
-                        renderRightAccessory = {this.renderAccessory}
-                        onChangeText ={address => this.setState({address})}
-                    />        
-                    <TextField
-                        style={styles.input}
-                        ref={(input) => { this.phone = input; }}
-                        label = 'Telefone'
-                        defaultValue = {this.state.contact}
-                        keyboardType = 'phone-pad'
-                        tintColor = 'rgba(0, 0, 0, 1)'
-                        baseColor = 'rgba(0, 0, 0, 1)'
-                        lineWidth = {0}
-                        fontSize = {wp('4.5%')}   
-                        renderRightAccessory = {this.renderAccessory}
-                        onChangeText = {contact =>{(this.setState({contact}))}}         
-                        formatText={value => this._addMaskContactBr(value)}
-                    />       
+                    <Text>Cargo Atual do Funcionário: {this.state.funcao}</Text>
+                    <View style={{borderColor:'black', borderWidth:wp('0.5%'), marginTop:wp('3%'), borderRadius:wp('1%')}}>                                                  
+                        <Picker
+                            style = {{width:wp('80')}}
+                            selectedValue={this.state.role}
+                            mode='dropdown'
+                            onValueChange={(itemValor, itemIndex)=> this.setState({role:itemValor})}
+                        >
+                            <Picker.item label = 'Cargo' value= ''/>
+                            <Picker.item label = 'Dono' value= '1'/>
+                            <Picker.item label = 'Gerente' value= '2'/>
+                            <Picker.item label = 'Funcionário' value= '3'/>
+                        </Picker>
+                    </View>     
                     <Text style = {{marginTop:wp('5%'), fontSize:wp('4.5%')}}>{this.state.CNPJ}</Text>
                 </View>
+                <View style = {{height:hp('23%')}}/>
                 <Button
                     type = 'outline'
                     title = 'Salvar'
@@ -157,6 +142,13 @@ export default class EditCompany extends Component {
                     buttonStyle = {styles.btnLogin}
                     onPress = {()=>this.updateData()}
                 /> 
+                <View style ={{alignSelf: 'center',flexDirection: 'row', marginTop:wp('3%')}}>
+                    <Text style ={{color: 'black',fontSize: wp('4,85409%'),	textAlign: "center",marginBottom: 20}}>Quer trocar a senha? </Text>
+                    <TouchableOpacity 
+                        onPress = {()=>this.props.navigation.navigate('EditPassword')}>
+                    <Text style={styles.txtStyle}>pressione aqui</Text>
+                    </TouchableOpacity>
+                </View>
             </ScrollView>
         </>
     );
@@ -195,4 +187,11 @@ const styles = StyleSheet.create({
         color:'white',
         fontSize: wp('5%'),
     },
+    txtStyle:{
+        color: '#01A83E',
+        fontSize: wp('4,85409%'),
+        textAlign: "center",
+        marginBottom: 20,
+        textDecorationLine: 'underline',
+    }, 
 })

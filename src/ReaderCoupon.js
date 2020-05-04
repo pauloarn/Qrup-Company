@@ -140,7 +140,7 @@ export default class Reader extends Component {
                     checkAndroid6Permissions={true}
                     fadeIn = {false}
                 />
-                {this.state.modeState === true ? (
+                {/*this.state.modeState === true ? (
                     <ScrollView>
                         <TextInput
                             placeholder = {'CÓDIGO'}
@@ -163,7 +163,7 @@ export default class Reader extends Component {
                                     onPress = {this.alterMode}  >
                         <Text style = {styles.txtScanMode}>ENTER CODE</Text>
                     </TouchableOpacity>
-                </View>  
+                </View>*/}  
             </>        
             
         );

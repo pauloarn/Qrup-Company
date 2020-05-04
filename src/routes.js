@@ -13,6 +13,7 @@ import AddEmployees from './AddEmployees'
 import EditCompany from './EditCompany';
 import CompanyCupons from './CompanyCupons'
 import AddCupons from './AddCupons'
+import EditEmployees from './EditEmployees'
 import Icon2 from 'react-native-vector-icons/FontAwesome5'
 import {
     widthPercentageToDP as wp,
@@ -71,6 +72,25 @@ const User = createStackNavigator(
       navigationOptions:{
         headerTintColor: 'white',
         title: 'Adicionar Funcionários',
+        headerStyle:{
+          backgroundColor: '#01A83E',
+          elevation: 0,
+        },
+        headerBackImage:(<Icon2 name='angle-left' size={ wp('10%')} color='white'/>),
+        headerTitleContainerStyle:{
+          justifyContent:'center'
+        },
+        headerTitleStyle: {
+          fontSize: wp('5%'),
+          marginLeft: -wp('5%')
+        },
+      }
+    },
+    EditEmployees:{
+      screen: EditEmployees,
+      navigationOptions:{
+        headerTintColor: 'white',
+        title: 'Editar Funcionário',
         headerStyle:{
           backgroundColor: '#01A83E',
           elevation: 0,
