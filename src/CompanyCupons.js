@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ToastAndroid } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ToastAndroid, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import {
     widthPercentageToDP as wp,
@@ -50,6 +50,45 @@ export default class companyCupons extends Component {
             );
         } 
     }
+    onExcludeItem(cupomId,cupomName){
+        Alert.alert(
+            'Tem certeza que deseja excluir o Cupom ' + cupomName +'?',
+            'Após excluir o item, o mesmo não poderá mais ser utilizado',
+            [
+                {text: 'Cancel', style: 'cancel'},
+                {text: 'Sim, excluir cupom', onPress: ()=> this.confirmExclude(cupomId)}
+                
+            ],
+            {cancelable: true}
+        )
+    }
+    async confirmExclude(cupomId){
+        try{
+            const response = await api.delete('/companies/'+ await AsyncStorage.getItem('@QrupCompany:companyid')+'/coupons/'+cupomId,
+            {
+                headers:{
+                    Authorization : "Bearer " + await AsyncStorage.getItem('@QrupCompany:token')
+                }
+            })
+            ToastAndroid.showWithGravityAndOffset(
+                'Cupom excluido com sucesso',
+                ToastAndroid.SHORT,
+                ToastAndroid.BOTTOM,
+                0,
+                200,
+            );
+            this.componentDidMount()
+        }catch(response){
+            console.log(response)
+            ToastAndroid.showWithGravityAndOffset(
+                'Problema para excluir cupom',
+                ToastAndroid.SHORT,
+                ToastAndroid.BOTTOM,
+                0,
+                200,
+            );
+        }
+    }
   render() {
     return (
         <>
@@ -67,7 +106,7 @@ export default class companyCupons extends Component {
                                                     <View style = {{flexDirection: 'row', marginHorizontal:wp('2%'), alignItems:'center', justifyContent:'center'}}>
                                                         <Text style = {{fontSize: wp('3.5%'), marginRight: wp('4%')}}>{item.points} pontos</Text>
                                                     </View>
-                                                    <TouchableOpacity>
+                                                    <TouchableOpacity onPress ={()=>this.onExcludeItem(item.id, item.name)}>
                                                         <Icon size={wp('5%')} name= 'trash-alt'  color='red' style ={{marginRight: wp('4%')}}/>
                                                     </TouchableOpacity>
                                                 </View>

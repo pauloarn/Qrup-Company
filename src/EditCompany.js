@@ -104,7 +104,6 @@ export default class EditCompany extends Component {
                         uri : (api.defaults.baseURL + this.state.avatar)
                     }}
                     showEditButton
-                    onPress={()=>this.selectPick()}
                 />
             </View>
             <ScrollView>

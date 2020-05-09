@@ -148,7 +148,9 @@ export default class EditCompany extends Component {
                 <View style ={{alignSelf: 'center',flexDirection: 'row', marginTop:wp('3%')}}>
                     <Text style ={{color: 'black',fontSize: wp('4,85409%'),	textAlign: "center",marginBottom: 20}}>Quer trocar a senha? </Text>
                     <TouchableOpacity 
-                        onPress = {()=>this.props.navigation.navigate('EditPassword')}>
+                        onPress = {()=>this.props.navigation.navigate('EditPassword', {
+                            employeeId: this.state.id
+                        })}>
                     <Text style={styles.txtStyle}>pressione aqui</Text>
                     </TouchableOpacity>
                 </View>

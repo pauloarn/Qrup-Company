@@ -137,6 +137,7 @@ export default class Profile extends Component {
                 200,
               );
         }
+        this.componentDidMount()
     }
   render() {
     return (
@@ -154,10 +155,6 @@ export default class Profile extends Component {
             <InsertCode
                 visible = {this.state.write}
                 alterMode = {()=>this.alterMode()}
-            />
-            <InsertCupon
-                visible = {this.state.writeCupom}
-                alterMode = {()=>this.alterModeCupom()}
             />
             <View style ={styles.header}>
                 <View style = {{marginTop: wp('8%'), marginLeft: wp('8%')}}>
@@ -187,7 +184,7 @@ export default class Profile extends Component {
                         </View>                  
                         <Text style = {styles.sub_Icon}>Empresa</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style = {{alignItems:'center'}} onPress = {()=>this.setState({changeCupom:true})}>
+                    <TouchableOpacity style = {{alignItems:'center'}} onPress = {()=>this.props.navigation.navigate('ScanCupon')}>
                         <View style={styles.cardBg}>  
                             <Icon size={wp('6%')} name='ticket-alt'  color='#01A83E'/>
                         </View>

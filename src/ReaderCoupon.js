@@ -38,8 +38,8 @@ export default class Reader extends Component {
             this.setState({load:true})
             try{
               const response = await api.post('/employees/'+await AsyncStorage.getItem('@QrupCompany:employeeId')+'/reads',{
-                qr: this.state.qr,
-                type:'read'
+                coupon_and_user: this.state.qr,
+                type:'take'
               },
               {
                   headers:{
@@ -49,7 +49,7 @@ export default class Reader extends Component {
               this.setState({load:false})
               this.props.navigation.navigate('Profile')
               ToastAndroid.showWithGravityAndOffset(
-                'Leitura Efetuada',
+                'Cupom válido',
                 ToastAndroid.SHORT,
                 ToastAndroid.BOTTOM,
                 0,
@@ -60,7 +60,7 @@ export default class Reader extends Component {
               console.log(response)   
               this.props.navigation.navigate('Qrup')
               ToastAndroid.showWithGravityAndOffset(
-                'Copo não Vinculado a Usuário',
+                'Cupom Invalido',
                 ToastAndroid.SHORT,
                 ToastAndroid.BOTTOM,
                 0,
@@ -75,7 +75,7 @@ export default class Reader extends Component {
             token: await AsyncStorage.getItem('@Qrup:token')
         }) 
     };
-    async onTextInsert  () {
+    /*async onTextInsert  () {
         if (this.state.read.length === 0 ){
             ToastAndroid.showWithGravityAndOffset(
                 'Ensira o Código do Copo',
@@ -88,8 +88,8 @@ export default class Reader extends Component {
             this.setState({load:true})
             try{
               const response = await api.post('/employees/'+await AsyncStorage.getItem('@QrupCompany:employeeId')+'/reads',{
-                qr: this.state.read,
-                type:'read'
+                coupon_and_user: this.state.read,
+                type:'take'
               },
               {
                   headers:{
@@ -120,7 +120,7 @@ export default class Reader extends Component {
               );
             }                        
           } 
-    }
+    }*/
     alterMode = () =>{
          if (this.state.modeState === true){
             this.setState({modeState: false});
