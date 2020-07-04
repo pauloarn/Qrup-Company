@@ -91,6 +91,39 @@ export default class EditCompany extends Component {
               );
         }
     }
+    selectPick(){
+        ImagePicker.openPicker({
+            width: 300,
+            height: 400,
+            cropping: true,
+            includeBase64: true,
+            mediaType: 'photo'
+          }).then(image => {
+            this.pickSelected(image)
+          })
+    }
+
+    async pickSelected(image){
+        let form = new FormData();
+
+            let name = image.path.split('/')
+            form.append('file',{
+                uri: image.path,
+                type: image.mime,
+                name: name[name.length-1]
+            })     
+             
+         try{ 
+            let res = await api.post('/files?role=user', form,
+                {
+                    headers:{
+                        Authorization : "Bearer " + this.state.token
+                    }
+                })
+        } catch(res){
+            //console.log('Falhou imagem update')
+        }
+    }
     
   render() {
     return (
@@ -104,6 +137,7 @@ export default class EditCompany extends Component {
                         uri : (api.defaults.baseURL + this.state.avatar)
                     }}
                     showEditButton
+                    onPress = {()=>{this.selectPick()}}
                 />
             </View>
             <ScrollView>

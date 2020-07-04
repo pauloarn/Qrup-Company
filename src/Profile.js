@@ -47,7 +47,7 @@ export default class Profile extends Component {
             this.setState({funcao: 'Dono da Empresa', auth:true})
 
         } else if(this.state.role =='2'){
-            this.setState({funcao:'Gerente da Empresa', auth:false})
+            this.setState({funcao:'Gerente', auth:false})
         } else if(this.state.role == '3'){
             this.setState({funcao: 'Funcionário', auth:false})
         }

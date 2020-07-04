@@ -64,6 +64,7 @@ export default class AddCupons extends Component {
     return (
         <>
             <LoadingScreen enabled = {this.state.load}/>
+            <View style ={{flex:1, backgroundColor:'#f5f5f5'}}>
             <View style={{ marginHorizontal:wp('10%')}}>
             <View style ={{height:wp('10%')}}/>
                 <TextField                    
@@ -116,6 +117,7 @@ export default class AddCupons extends Component {
                     buttonStyle = {styles.btnLogin}
                     onPress={()=>{this.addCupons()}}
                 /> 
+            </View>
             </View>
         </>
     );

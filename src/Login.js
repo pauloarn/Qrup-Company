@@ -70,16 +70,26 @@ export default class Login extends React.Component {
             this.loginAgain()
             console.log(response.data.employee.company[0].company_id)
         } catch (response){
-          this.setState({load:false})
-          //this.setState({errorMessage: response.data.error });      
-          console.log(response);  
-          ToastAndroid.showWithGravityAndOffset(
-            'Credenciais não conferem',
-            ToastAndroid.SHORT,
-            ToastAndroid.BOTTOM,
-            0,
-            200,
-          );
+          let error = response.response.data
+          if(error == 'Emplyee not found'){
+            ToastAndroid.showWithGravityAndOffset(
+              'Cadastro de Funcionário não encontrado',
+              ToastAndroid.SHORT,
+              ToastAndroid.BOTTOM,
+              0,
+              200,
+            );
+            this.setState({load:false})
+          } else {
+            ToastAndroid.showWithGravityAndOffset(
+              'Credenciais não conferem',
+              ToastAndroid.SHORT,
+              ToastAndroid.BOTTOM,
+              0,
+              200,
+            );            
+            this.setState({load:false})
+          }
         }                     
     }   
   }
@@ -125,13 +135,14 @@ export default class Login extends React.Component {
               <View style = {styles.field}>
                 <TextField
                   style={styles.input}
-                  label = 'CPF do Usuário'
+                  label = 'CPF do Funcionario'
                   tintColor = 'rgb(255,255,255)'
                   baseColor = 'rgba(255,255,255,1)'
                   textColor = 'rgba(255,255,255,1)'
                   lineWidth = {2}
                   maxLength= {11}
                   fontSize = {17}
+                  keyboardType = 'number-pad'
                   onSubmitEditing={() => { this.password.focus(); }}
                   onChangeText = {login =>{(this.setState({login}))}}
                 />

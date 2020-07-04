@@ -3,24 +3,21 @@ import {
   StyleSheet,
   View,
   Text,
-  Image,
-  TouchableOpacity,
   ScrollView,
   ToastAndroid,
-  TextComponent,
   Alert
 } from 'react-native';
-import Logo from '../Images/qrup_semroda_semsombra.png'
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import Icon from 'react-native-vector-icons/Ionicons'
 import Icon2 from 'react-native-vector-icons/Feather'
 import {Button} from 'react-native-elements'
 import { TextField } from 'react-native-material-textfield';
 import api from './services/api'
 import LoadingScreen from './components/LoadingScreen';
+import * as yup from 'yup'
+import {Formik} from 'formik'
 
 export default class Register extends React.Component {
   constructor(props) {
@@ -70,7 +67,7 @@ export default class Register extends React.Component {
       } catch (response){
         //this.setState({errorMessage: response.data.error });
         console.log(response)
-        alert("Cadastro não efetuado com sucesso, virifique seus dados")
+        alert("Cadastro não efetuado com sucesso, verifique seus dados")
       }                     
     }   
   } 
@@ -111,119 +108,159 @@ export default class Register extends React.Component {
         <Text style={{fontSize: wp('4%'), color:'white', marginHorizontal: wp('9.5%')}}> Faça seu cadastro para se tornar um parceiro da iniciativa Qrup e fazer a diferença</Text>
       </View>
       <ScrollView style = {{ backgroundColor: "white"}}>         
-            <View style = {styles.field}>
+        <Formik
+          initialValues = {{companyName: '', cnpj:'', contact:'', address:'', ownerName:'', ownerCpf:'', password:'',representative:''}}
+          validationSchema ={
+            yup.object().shape({
+              companyName: yup.string().required('Inisra o Nome da Empresa'),
+              cnpj: yup.string().required('Insira um CNPJ').max(14).min(14),
+              contact: yup.string().required('Insira um telefone'),
+              address: yup.string().required('Insira o Indereço da Empresa'),
+              ownerName: yup.string().required('Inisira o Nome do Dono'),
+              ownerCpf: yup.string().required('Inisra o CPF do Dono').max(11).min(11),
+              password: yup.string().required('Insira uma senha para a conta principal').min(6, 'Senha muito curta'),
+              representative: yup.string().required('Inisra o Nome do Representante')
+            })
+          }
+          onSubmit ={(values)=>{
+            this.setState({
+              companyName: values.companyName,
+              cnpj: values.cnpj,
+              contact: values.contact,
+              address: values.address,
+              ownerName: values.ownerName,
+              ownerCpf: values.ownerCpf,
+              password: values.password,
+              representative: values.representative
+            })
+            this.Cadastra()
+          }}
+        >
+        {({values, handleChange,errors, handleSubmit})=>(<View style = {styles.field}>
+                <TextField
+                  style={styles.input}
+                  label = 'Nome da Empresa'
+                  tintColor = 'rgba(1, 168, 62, 1)'
+                  baseColor = 'rgba(1, 168, 62, 1)'
+                  textColor = 'rgba(1, 168, 62, 1)'
+                  lineWidth = {2}
+                  fontSize = {17}
+                  onSubmitEditing={() => { this.cnpj.focus(); }}
+                  onChangeText = {handleChange('companyName')}
+                  error ={errors.companyName}
+                />
+                <TextField
+                  style={styles.input}
+                  ref={(input) => { this.cnpj= input; }}
+                  label = 'CNPJ da Empresa'
+                  tintColor = 'rgba(1, 168, 62, 1)'
+                  baseColor = 'rgba(1, 168, 62, 1)'
+                  textColor = 'rgba(1, 168, 62, 1)'
+                  lineWidth = {2}              
+                  keyboardType = 'phone-pad'
+                  maxLength = {14}
+                  fontSize = {17}
+                  autoCapitalize ='none'
+                  onSubmitEditing={() => { this.phone.focus(); }}              
+                  onChangeText = {handleChange('cnpj')}
+                  error= {errors.cnpj}
+                />  
+                <TextField
+                  style={styles.input}
+                  ref={(input) => { this.phone = input; }}
+                  label = 'Telefone'
+                  keyboardType = 'phone-pad'
+                  tintColor = 'rgba(1, 168, 62, 1)'
+                  baseColor = 'rgba(1, 168, 62, 1)'
+                  textColor = 'rgba(1, 168, 62, 1)'
+                  lineWidth = {2}
+                  fontSize = {17}
+                  onSubmitEditing={() => { this.endereco.focus(); }}                
+                  onChangeText = {handleChange('contact')}        
+                  formatText={value => this._addMaskContactBr(value)}
+                  error = {errors.contact}
+                />            
+                <TextField
+                  style={styles.input}
+                  ref={(input) => { this.endereco= input; }}
+                  label = 'Endereço da Empresa'
+                  tintColor = 'rgba(1, 168, 62, 1)'
+                  baseColor = 'rgba(1, 168, 62, 1)'
+                  textColor = 'rgba(1, 168, 62, 1)'
+                  lineWidth = {2}
+                  fontSize = {17}    
+                  onChangeText = {handleChange('address')}    
+                  onSubmitEditing={() => { this.ownerName.focus(); }}  
+                  error = {errors.address}
+                />        
+                <TextField
+                  style={styles.input}
+                  ref={(input) => { this.ownerName= input; }}
+                  label = 'Nome do Dono'
+                  tintColor = 'rgba(1, 168, 62, 1)'
+                  baseColor = 'rgba(1, 168, 62, 1)'
+                  textColor = 'rgba(1, 168, 62, 1)'
+                  lineWidth = {2}
+                  fontSize = {17}          
+                  onChangeText = {handleChange('ownerName')}    
+                  onSubmitEditing={() => { this.cpf.focus(); }}  
+                  error= {errors.ownerName}
+                />      
+                <TextField
+                  style={styles.input}
+                  ref={(input) => { this.cpf = input; }}
+                  label = 'CPF do Responsavel'
+                  keyboardType = 'phone-pad'
+                  maxLength={11}
+                  tintColor = 'rgba(1, 168, 62, 1)'
+                  baseColor = 'rgba(1, 168, 62, 1)'
+                  textColor = 'rgba(1, 168, 62, 1)'
+                  lineWidth = {2}
+                  fontSize = {17}          
+                  onChangeText = {handleChange('ownerCpf')}    
+                  onSubmitEditing={() => { this.password.focus(); }}  
+                  error= {errors.ownerCpf}
+                />  
+                <TextField
+                  style={styles.input}
+                  ref={(input) => { this.password= input; }}
+                  label = 'Senha da Conta Principal'
+                  tintColor = 'rgba(1, 168, 62, 1)'
+                  baseColor = 'rgba(1, 168, 62, 1)'
+                  textColor = 'rgba(1, 168, 62, 1)'
+                  secureTextEntry = {this.state.secureTextEntry}
+                  lineWidth = {2}
+                  autoCapitalize = 'none'
+                  fontSize = {17}                      
+                  onChangeText = {handleChange('password')}    
+                  renderRightAccessory = {this.renderPasswordAccessory}
+                  onSubmitEditing={() => { this.representative.focus(); }}  
+                  error= {errors.password}
+                />                          
               <TextField
-                style={styles.input}
-                label = 'Nome da Empresa'
-                tintColor = 'rgba(1, 168, 62, 1)'
-                baseColor = 'rgba(1, 168, 62, 1)'
-                textColor = 'rgba(1, 168, 62, 1)'
-                lineWidth = {2}
-                fontSize = {17}
-                onSubmitEditing={() => { this.cnpj.focus(); }}
-                onChangeText = {companyName =>{(this.setState({companyName}))}}
-              />
-              <TextField
-                style={styles.input}
-                ref={(input) => { this.cnpj= input; }}
-                label = 'CNPJ da Empresa'
-                tintColor = 'rgba(1, 168, 62, 1)'
-                baseColor = 'rgba(1, 168, 62, 1)'
-                textColor = 'rgba(1, 168, 62, 1)'
-                lineWidth = {2}              
-                keyboardType = 'phone-pad'
-                maxLength = {14}
-                fontSize = {17}
-                autoCapitalize ='none'
-                onSubmitEditing={() => { this.phone.focus(); }}              
-                onChangeText = {cnpj =>{(this.setState({cnpj}))}}
-              />  
-              <TextField
-                style={styles.input}
-                ref={(input) => { this.phone = input; }}
-                label = 'Telefone'
-                keyboardType = 'phone-pad'
-                tintColor = 'rgba(1, 168, 62, 1)'
-                baseColor = 'rgba(1, 168, 62, 1)'
-                textColor = 'rgba(1, 168, 62, 1)'
-                lineWidth = {2}
-                fontSize = {17}
-                onSubmitEditing={() => { this.endereco.focus(); }}          
-                formatText={value => this._addMaskContactBr(value)}
-              />            
-              <TextField
-                style={styles.input}
-                ref={(input) => { this.endereco= input; }}
-                label = 'Endereço da Empresa'
-                tintColor = 'rgba(1, 168, 62, 1)'
-                baseColor = 'rgba(1, 168, 62, 1)'
-                textColor = 'rgba(1, 168, 62, 1)'
-                lineWidth = {2}
-                fontSize = {17}
-                onChangeText = {address =>{this.setState({address})}}
-                onSubmitEditing={() => { this.ownerName.focus(); }}  
-              />        
-              <TextField
-                style={styles.input}
-                ref={(input) => { this.ownerName= input; }}
-                label = 'Nome do Dono'
-                tintColor = 'rgba(1, 168, 62, 1)'
-                baseColor = 'rgba(1, 168, 62, 1)'
-                textColor = 'rgba(1, 168, 62, 1)'
-                lineWidth = {2}
-                fontSize = {17}
-                onChangeText = {ownerName =>{this.setState({ownerName})}}
-                onSubmitEditing={() => { this.cpf.focus(); }}  
-              />      
-              <TextField
-                style={styles.input}
-                ref={(input) => { this.cpf = input; }}
-                label = 'CPF do Responsavel'
-                keyboardType = 'phone-pad'
-                maxLength={11}
-                tintColor = 'rgba(1, 168, 62, 1)'
-                baseColor = 'rgba(1, 168, 62, 1)'
-                textColor = 'rgba(1, 168, 62, 1)'
-                lineWidth = {2}
-                fontSize = {17}
-                onChangeText = {ownerCpf =>{this.setState({ownerCpf})}}
-                onSubmitEditing={() => { this.password.focus(); }}  
-              />  
-              <TextField
-                style={styles.input}
-                ref={(input) => { this.password= input; }}
-                label = 'Senha da Conta Principal'
-                tintColor = 'rgba(1, 168, 62, 1)'
-                baseColor = 'rgba(1, 168, 62, 1)'
-                textColor = 'rgba(1, 168, 62, 1)'
-                secureTextEntry = {this.state.secureTextEntry}
-                lineWidth = {2}
-                autoCapitalize = 'none'
-                fontSize = {17}            
-                onChangeText = {password =>{(this.setState({password}))}}
-                renderRightAccessory = {this.renderPasswordAccessory}
-                onSubmitEditing={() => { this.representative.focus(); }}  
-              />                          
-            <TextField
-                style={styles.input}
-                ref={(input) => { this.representative= input; }}
-                label = 'Nome do Representante'
-                tintColor = 'rgba(1, 168, 62, 1)'
-                baseColor = 'rgba(1, 168, 62, 1)'
-                textColor = 'rgba(1, 168, 62, 1)'
-                lineWidth = {2}
-                fontSize = {17}
-                onChangeText = {representative =>{this.setState({representative})}}
-              />  
-            </View>   
-            <View style= {styles.divider}/>
-            <Button
-              type = 'outline'
-              title = 'Cadastrar'
-              titleStyle = {styles.btnLabel}
-              buttonStyle = {styles.btnLogin}
-              onPress = {()=>this.Cadastra()}
-            /> 
+                  style={styles.input}
+                  ref={(input) => { this.representative= input; }}
+                  label = 'Nome do Representante'
+                  tintColor = 'rgba(1, 168, 62, 1)'
+                  baseColor = 'rgba(1, 168, 62, 1)'
+                  textColor = 'rgba(1, 168, 62, 1)'
+                  lineWidth = {2}
+                  fontSize = {17}          
+                  onChangeText = {handleChange('representative')}    
+                  error= {errors.representative}
+                />  
+              <View style= {styles.divider}/>
+                <Button
+                  type = 'outline'
+                  title = 'Cadastrar'
+                  titleStyle = {styles.btnLabel}
+                  buttonStyle = {styles.btnLogin}
+                  onPress = {handleSubmit}
+                />                
+              </View>   
+               )}
+          </Formik>
+          <View style= {styles.divider}/>
       </ScrollView>  
   </>
   );

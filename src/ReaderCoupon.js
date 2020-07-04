@@ -26,15 +26,6 @@ export default class Reader extends Component {
     };
     onSuccess = async (e) => {
         await this.setState({qr: e.data});
-        if (this.state.qr.length === 0 ){
-            ToastAndroid.showWithGravityAndOffset(
-                'Ensira o Código do Copo',
-                ToastAndroid.SHORT,
-                ToastAndroid.BOTTOM,
-                0,
-                200,
-              );
-          } else{ 
             this.setState({load:true})
             try{
               const response = await api.post('/employees/'+await AsyncStorage.getItem('@QrupCompany:employeeId')+'/reads',{
@@ -57,17 +48,26 @@ export default class Reader extends Component {
               );
             } catch (response){
               //this.setState({errorMessage: response.data.error });     
-              console.log(response)   
+              let error = response.response.data;   
               this.props.navigation.navigate('Qrup')
-              ToastAndroid.showWithGravityAndOffset(
-                'Cupom Invalido',
-                ToastAndroid.SHORT,
-                ToastAndroid.BOTTOM,
-                0,
-                200,
-              );
+              if (error = 'You dont have enough points'){
+                ToastAndroid.showWithGravityAndOffset(
+                    'Usuário não possiu pontos suficientes',
+                    ToastAndroid.SHORT,
+                    ToastAndroid.BOTTOM,
+                    0,
+                    200,
+                  );
+              }else {
+                ToastAndroid.showWithGravityAndOffset(
+                    'Cupom Invalido',
+                    ToastAndroid.SHORT,
+                    ToastAndroid.BOTTOM,
+                    0,
+                    200,
+                  );
+              }              
             }                        
-          } 
     };
     async componentDidMount(){
         this.setState ({
