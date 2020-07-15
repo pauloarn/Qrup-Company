@@ -36,8 +36,7 @@ export default class companyCupons extends Component {
         try{
             const response = await api.get('/companies/'+await AsyncStorage.getItem('@QrupCompany:companyid')+'/company-coupons') ;
             this.setState({cuponsList: response.data, refreshing: false})
-            console.log(response.data)
-            
+            console.log(response.data)            
         } catch (response){
             this.setState({load:false, refreshing:false})
             console.log(response)

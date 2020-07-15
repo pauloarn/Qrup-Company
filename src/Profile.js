@@ -36,6 +36,25 @@ export default class Profile extends Component {
             auth:''
         };
     }
+    async loadData(){
+        try{
+            const response = await api.get('/companies/'+await AsyncStorage.getItem('@QrupCompany:companyid')+'/company-coupons')
+            this.setState({
+                couponsAvaliable: response.data.length
+            })
+            const resCupon = await api.get('/historic?&ini_date='+this.state.date+'&company_id='+await AsyncStorage.getItem('@QrupCompany:companyid'),{
+                headers:{
+                    Authorization : "Bearer " + await AsyncStorage.getItem('@QrupCompany:token')
+                  }
+            })
+            this.setState({
+                coposRead: resCupon.data.data.filter(coupon => coupon.coupon === null, user_id => user_id.user_id ===  this.state.id).length,
+                couponsRead: resCupon.data.data.filter(coupon => coupon.coupon !== null, user_id => user_id.user_id ===  this.state.id).length
+            })
+        }catch(response){
+            console.log(response)
+        }
+    }
     async componentDidMount(){
         this.setState({
             name: await AsyncStorage.getItem('@QrupCompany:name'),
@@ -68,7 +87,12 @@ export default class Profile extends Component {
         }catch(response){
             console.log(response)
         }
+    this.state.will_focus = this.props.navigation.addListener('willFocus', async () =>(this.loadData()))        
     }
+    
+    async componentWillUnmount(){
+        this.state.will_focus.remove(); 
+    } 
     Exit =async()=>{
         await AsyncStorage.clear();
         this.props.navigation.navigate('Login');

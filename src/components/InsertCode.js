@@ -76,7 +76,7 @@ export default class InsertCode extends Component {
                 <View style = {styles.insertCode}>                            
                     <TextInput
                         placeholder = {'Insira o Código do Qrup'}
-                        autoCapitalize = 'characters'
+                        autoCapitalize = 'none'
                         placeholderTextColor = '#006300'
                         style = {styles.inputCode}
                         onChangeText = {(qr)=>this.setState({qr})}
